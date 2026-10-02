@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>selfdriven.health — Sovereign Health Identity</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── DESIGN TOKENS ── */
+:root {
+  --bg: #f5f2ed;
+  --surface: #edeae3;
+  --surface2: #e5e1d8;
+  --border: #ddd8ce;
+  --text: #1a1410;
+  --muted: #6b5f52;
+  --muted2: #9e9085;
+  --accent: #c8442f;
+  --accent-dim: rgba(200, 68, 47, 0.10);
+  --accent-strong: rgba(200, 68, 47, 0.18);
+  --health-green: #2a9d6e;
+  --health-green-dim: rgba(42, 157, 110, 0.10);
+  --health-teal: #1a8a7a;
+  --card-radius: 20px;
+  --shadow: 0 2px 16px rgba(0,0,0,0.07);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.10);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0a0a0a;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --border: #2a2a2a;
+    --text: #f0ede8;
+    --muted: #b0a89e;
+    --muted2: #7a7268;
+    --accent: #e85d4a;
+    --accent-dim: rgba(232, 93, 74, 0.12);
+    --accent-strong: rgba(232, 93, 74, 0.20);
+    --health-green: #3ec98a;
+    --health-green-dim: rgba(62, 201, 138, 0.12);
+    --health-teal: #2cb8a4;
+    --shadow: 0 2px 16px rgba(0,0,0,0.4);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
+  }
+}
+
+/* ── RESET & BASE ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+
+/* ── NAVIGATION ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding: 0 40px; height: 72px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background 0.3s, box-shadow 0.3s, backdrop-filter 0.3s;
+}
+nav.scrolled {
+  background: rgba(245, 242, 237, 0.85);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 1px 0 var(--border);
+}
+@media (prefers-color-scheme: dark) {
+  nav.scrolled { background: rgba(10, 10, 10, 0.85); }
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 12px;
+  font-weight: 800; font-size: 18px; letter-spacing: -0.03em;
+}
+.nav-brand .dot { color: var(--accent); }
+.nav-logo {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 900; font-size: 14px;
+  box-shadow: 0 2px 8px rgba(200,68,47,0.25);
+}
+.nav-links { display: flex; gap: 32px; align-items: center; }
+.nav-links a {
+  font-size: 14px; font-weight: 500; color: var(--muted);
+  transition: color 0.2s; position: relative;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  padding: 10px 24px; border-radius: 999px;
+  background: var(--accent); color: #fff !important;
+  font-weight: 600; font-size: 13px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  letter-spacing: 0.02em;
+}
+.nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(200,68,47,0.3); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh; display: flex; align-items: center;
+  padding: 120px 60px 80px;
+  position: relative; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 70% 40%, var(--accent-dim) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 20% 60%, var(--health-green-dim) 0%, transparent 70%);
+}
+.hero-grid {
+  position: absolute; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.3;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 30%, transparent 80%);
+}
+.hero-content { position: relative; z-index: 1; max-width: 780px; }
+.hero-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 24px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-eyebrow::before {
+  content: ''; width: 32px; height: 2px; background: var(--accent);
+}
+.hero h1 {
+  font-size: clamp(48px, 7vw, 86px); font-weight: 900;
+  letter-spacing: -0.04em; line-height: 1.05;
+  margin-bottom: 28px;
+}
+.hero h1 em {
+  font-style: normal; color: var(--accent);
+  position: relative;
+}
+.hero h1 em::after {
+  content: ''; position: absolute; bottom: 4px; left: 0; right: 0;
+  height: 6px; background: var(--accent-strong); border-radius: 3px;
+}
+.hero-sub {
+  font-size: 18px; line-height: 1.7; color: var(--muted);
+  max-width: 580px; margin-bottom: 40px; font-weight: 400;
+}
+.hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+.btn-primary {
+  padding: 16px 36px; border-radius: 999px;
+  background: var(--accent); color: #fff;
+  font-weight: 700; font-size: 15px; border: none; cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-family: 'Poppins', sans-serif;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(200,68,47,0.3); }
+.btn-outline {
+  padding: 16px 36px; border-radius: 999px;
+  background: transparent; color: var(--text);
+  font-weight: 600; font-size: 15px; border: 2px solid var(--border);
+  cursor: pointer; transition: border-color 0.2s, background 0.2s;
+  font-family: 'Poppins', sans-serif;
+}
+.btn-outline:hover { border-color: var(--accent); background: var(--accent-dim); }
+
+/* ── PULSE VISUAL ── */
+.hero-visual {
+  position: absolute; right: -40px; top: 50%; transform: translateY(-50%);
+  width: 520px; height: 520px; z-index: 0;
+}
+.pulse-ring {
+  position: absolute; border-radius: 50%;
+  border: 1px solid var(--accent);
+  opacity: 0; animation: pulseRing 4s ease-out infinite;
+}
+.pulse-ring:nth-child(1) { width: 200px; height: 200px; top: 160px; left: 160px; animation-delay: 0s; }
+.pulse-ring:nth-child(2) { width: 320px; height: 320px; top: 100px; left: 100px; animation-delay: 1s; }
+.pulse-ring:nth-child(3) { width: 440px; height: 440px; top: 40px; left: 40px; animation-delay: 2s; }
+.pulse-center {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 80px; height: 80px; border-radius: 50%;
+  background: var(--accent); display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 40px rgba(200,68,47,0.25);
+}
+.pulse-center svg { width: 36px; height: 36px; fill: #fff; }
+@keyframes pulseRing {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(1.2); opacity: 0; }
+}
+
+/* ── STATS STRIP ── */
+.stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  padding: 0 60px; gap: 24px; margin-top: -40px;
+  position: relative; z-index: 2;
+}
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--card-radius); padding: 32px;
+  text-align: center; transition: transform 0.3s, box-shadow 0.3s;
+}
+.stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.stat-num {
+  font-size: 36px; font-weight: 900; letter-spacing: -0.03em;
+  color: var(--accent); margin-bottom: 4px;
+}
+.stat-label { font-size: 13px; color: var(--muted); font-weight: 500; }
+
+/* ── SECTIONS ── */
+section { padding: 120px 60px; }
+.section-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 16px;
+}
+.section-title {
+  font-size: clamp(32px, 4vw, 52px); font-weight: 900;
+  letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 20px;
+}
+.section-sub {
+  font-size: 17px; color: var(--muted); max-width: 600px;
+  line-height: 1.7; margin-bottom: 60px;
+}
+
+/* ── PILLARS ── */
+.pillars-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.pillar-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--card-radius); padding: 36px;
+  border-top: 3px solid transparent;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  cursor: default;
+}
+.pillar-card:hover {
+  transform: translateY(-6px); box-shadow: var(--shadow-lg);
+  border-top-color: var(--accent);
+}
+.pillar-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  background: var(--accent-dim); display: flex;
+  align-items: center; justify-content: center;
+  margin-bottom: 24px; font-size: 24px;
+}
+.pillar-card h3 {
+  font-size: 20px; font-weight: 800; letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.pillar-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+/* ── IDENTITY SECTION (DARK) ── */
+.identity-section {
+  background: var(--text); color: var(--bg); padding: 120px 60px;
+  position: relative; overflow: hidden;
+}
+@media (prefers-color-scheme: dark) {
+  .identity-section { background: #141414; color: var(--text); }
+}
+.identity-section .section-eyebrow { color: var(--accent); }
+.identity-section .section-sub { color: rgba(245,242,237,0.6); }
+@media (prefers-color-scheme: dark) {
+  .identity-section .section-sub { color: var(--muted); }
+}
+.identity-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
+  align-items: center;
+}
+.identity-flow {
+  display: flex; flex-direction: column; gap: 0;
+  position: relative;
+}
+.identity-flow::before {
+  content: ''; position: absolute; left: 28px; top: 56px; bottom: 56px;
+  width: 2px; background: rgba(200,68,47,0.2);
+}
+.flow-step {
+  display: flex; gap: 24px; padding: 24px 0;
+  position: relative; z-index: 1;
+}
+.flow-num {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 18px; flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(200,68,47,0.25);
+}
+.flow-content h4 {
+  font-size: 17px; font-weight: 700; margin-bottom: 6px;
+}
+.flow-content p {
+  font-size: 14px; line-height: 1.7;
+  color: rgba(245,242,237,0.55);
+}
+@media (prefers-color-scheme: dark) {
+  .flow-content p { color: var(--muted); }
+}
+.identity-card-demo {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--card-radius); padding: 40px;
+  backdrop-filter: blur(10px);
+}
+.id-card-header {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 32px;
+  padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.id-card-logo {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: var(--accent); display: flex;
+  align-items: center; justify-content: center;
+  color: #fff; font-weight: 900; font-size: 16px;
+}
+.id-card-title { font-weight: 700; font-size: 16px; }
+.id-card-subtitle { font-size: 12px; color: rgba(245,242,237,0.5); }
+@media (prefers-color-scheme: dark) {
+  .id-card-subtitle { color: var(--muted2); }
+}
+.id-field { margin-bottom: 20px; }
+.id-field-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+}
+.id-field-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 500; word-break: break-all;
+}
+.id-field-value.blurred {
+  filter: blur(4px); user-select: none;
+  transition: filter 0.3s;
+}
+.id-field-value.blurred:hover { filter: blur(0px); }
+.id-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 999px;
+  background: rgba(42,157,110,0.15); color: var(--health-green);
+  font-size: 12px; font-weight: 600;
+}
+.id-badge::before {
+  content: ''; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--health-green);
+  animation: badgePulse 2s ease-in-out infinite;
+}
+@keyframes badgePulse {
+  0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+}
+
+/* ── AREAS OF FOCUS ── */
+.aof-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.aof-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--card-radius); padding: 28px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer; position: relative; overflow: hidden;
+}
+.aof-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.aof-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--accent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.3s;
+}
+.aof-card:hover::before { transform: scaleX(1); }
+.aof-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 600; color: var(--accent);
+  margin-bottom: 12px;
+}
+.aof-card h3 {
+  font-size: 17px; font-weight: 800; letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+.aof-card p {
+  font-size: 13px; color: var(--muted); line-height: 1.6;
+}
+.aof-expanded {
+  display: none; margin-top: 16px; padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.aof-card.active .aof-expanded { display: block; }
+.aof-detail {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--muted); margin-bottom: 8px;
+}
+.aof-detail-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); flex-shrink: 0;
+}
+
+/* ── HEALTH VAULT INTERACTIVE ── */
+.vault-section { padding: 120px 60px; }
+.vault-container {
+  max-width: 900px; margin: 0 auto;
+}
+.vault-tabs {
+  display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap;
+}
+.vault-tab {
+  padding: 10px 20px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--border);
+  font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 13px;
+  color: var(--muted); cursor: pointer;
+  transition: all 0.2s;
+}
+.vault-tab:hover { border-color: var(--accent); color: var(--text); }
+.vault-tab.active {
+  background: var(--accent); color: #fff; border-color: var(--accent);
+}
+.vault-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--card-radius); padding: 40px;
+  min-height: 340px; position: relative;
+  border-top: 3px solid var(--accent);
+}
+.vault-panel-title {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+.vault-panel-desc {
+  font-size: 14px; color: var(--muted); margin-bottom: 28px; line-height: 1.7;
+}
+.credential-list { display: flex; flex-direction: column; gap: 12px; }
+.credential-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-radius: 14px;
+  background: var(--bg); border: 1px solid var(--border);
+  transition: border-color 0.2s;
+}
+.credential-item:hover { border-color: var(--accent); }
+.credential-left { display: flex; align-items: center; gap: 14px; }
+.credential-icon {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.credential-icon.green { background: var(--health-green-dim); }
+.credential-icon.accent { background: var(--accent-dim); }
+.credential-name { font-weight: 600; font-size: 14px; }
+.credential-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--muted2);
+}
+.credential-status {
+  padding: 5px 12px; border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+}
+.credential-status.verified {
+  background: var(--health-green-dim); color: var(--health-green);
+}
+.credential-status.pending {
+  background: rgba(200,160,50,0.1); color: #c8a032;
+}
+
+/* ── TIMELINE VISUALIZATION ── */
+.timeline-visual {
+  position: relative; padding: 20px 0;
+}
+.timeline-line {
+  position: absolute; top: 0; bottom: 0; left: 24px;
+  width: 2px; background: var(--border);
+}
+.timeline-event {
+  display: flex; gap: 24px; padding: 16px 0;
+  position: relative;
+}
+.timeline-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--accent); flex-shrink: 0;
+  margin-top: 4px; position: relative; left: 19px;
+  z-index: 1;
+}
+.timeline-dot.green { background: var(--health-green); }
+.timeline-event-content { padding-left: 20px; }
+.timeline-event-title { font-weight: 700; font-size: 14px; }
+.timeline-event-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--muted2); margin-top: 2px;
+}
+.timeline-event-hash {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--accent); margin-top: 4px;
+  opacity: 0.7;
+}
+
+/* ── ECG ANIMATION ── */
+.ecg-container {
+  width: 100%; height: 80px; margin: 20px 0;
+  overflow: hidden; position: relative;
+}
+.ecg-container svg { width: 100%; height: 100%; }
+.ecg-line {
+  fill: none; stroke: var(--accent); stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+  animation: ecgDash 3s linear infinite;
+}
+@keyframes ecgDash {
+  0% { stroke-dashoffset: 1200; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* ── CTA SECTION ── */
+.cta-section {
+  padding: 120px 60px; text-align: center;
+}
+.cta-card {
+  max-width: 720px; margin: 0 auto;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--card-radius); padding: 60px;
+  border-top: 3px solid var(--accent);
+}
+.cta-card h2 {
+  font-size: clamp(28px, 3.5vw, 42px); font-weight: 900;
+  letter-spacing: -0.04em; margin-bottom: 16px;
+}
+.cta-card p {
+  font-size: 16px; color: var(--muted); margin-bottom: 36px;
+  line-height: 1.7;
+}
+.cta-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+/* ── FOOTER ── */
+footer {
+  padding: 60px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 24px;
+}
+.footer-brand {
+  font-weight: 800; font-size: 16px;
+}
+.footer-brand .dot { color: var(--accent); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a {
+  font-size: 13px; color: var(--muted); font-weight: 500;
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--accent); }
+.footer-legal {
+  font-size: 12px; color: var(--muted2); width: 100%;
+  margin-top: 12px;
+}
+
+/* ── MOBILE NAV ── */
+.nav-toggle {
+  display: none; background: none; border: none; cursor: pointer;
+  width: 32px; height: 32px; position: relative;
+}
+.nav-toggle span {
+  display: block; width: 22px; height: 2px;
+  background: var(--text); position: absolute; left: 5px;
+  transition: all 0.3s;
+}
+.nav-toggle span:nth-child(1) { top: 9px; }
+.nav-toggle span:nth-child(2) { top: 15px; }
+.nav-toggle span:nth-child(3) { top: 21px; }
+.nav-toggle.open span:nth-child(1) { top: 15px; transform: rotate(45deg); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(3) { top: 15px; transform: rotate(-45deg); }
+
+/* ── SCROLL REVEAL ── */
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .pillars-grid { grid-template-columns: repeat(2, 1fr); }
+  .aof-grid { grid-template-columns: repeat(2, 1fr); }
+  .identity-grid { grid-template-columns: 1fr; }
+  .hero-visual { display: none; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  section, .hero, .cta-section, .vault-section, footer { padding-left: 24px; padding-right: 24px; }
+  .stats { padding: 0 24px; }
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  .nav-toggle { display: block; }
+  .nav-links.open {
+    display: flex; flex-direction: column;
+    position: absolute; top: 72px; left: 0; right: 0;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 24px; gap: 16px;
+  }
+  .pillars-grid, .aof-grid { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .hero h1 { font-size: 40px; }
+  .identity-section { padding: 80px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAVIGATION ── -->
+<nav id="mainNav">
+  <a href="#" class="nav-brand">
+    <div class="nav-logo">sd</div>
+    selfdriven<span class="dot">.health</span>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="#pillars">Platform</a>
+    <a href="#identity">Identity</a>
+    <a href="#areas">Framework</a>
+    <a href="#vault">Health Vault</a>
+    <a href="#cta" class="nav-cta">Get Started</a>
+  </div>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Sovereign Health Identity</div>
+    <h1>Your health data,<br><em>your keys</em></h1>
+    <p class="hero-sub">
+      selfdriven.health is a sovereign health identity platform built on KERI/ACDC cryptographic infrastructure. Own your health records. Control who sees them. Prove claims without revealing data.
+    </p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="document.getElementById('vault').scrollIntoView({behavior:'smooth'})">Explore Health Vault</button>
+      <button class="btn-outline" onclick="document.getElementById('identity').scrollIntoView({behavior:'smooth'})">How It Works</button>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="pulse-ring"></div>
+    <div class="pulse-ring"></div>
+    <div class="pulse-ring"></div>
+    <div class="pulse-center">
+      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS ── -->
+<div class="stats reveal">
+  <div class="stat-card">
+    <div class="stat-num" data-count="256">0</div>
+    <div class="stat-label">AES-bit Encryption</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" data-count="0">0</div>
+    <div class="stat-label">Passwords Required</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" data-count="100">0</div>
+    <div class="stat-label">% Data Sovereignty</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" data-count="8">0</div>
+    <div class="stat-label">Areas of Focus</div>
+  </div>
+</div>
+
+<!-- ── PILLARS ── -->
+<section id="pillars">
+  <div class="section-eyebrow reveal">Platform Pillars</div>
+  <h2 class="section-title reveal">Health sovereignty<br>by design</h2>
+  <p class="section-sub reveal">
+    Six infrastructure pillars power a health platform where you control every byte of your health data — cryptographically.
+  </p>
+  <div class="pillars-grid">
+    <div class="pillar-card reveal">
+      <div class="pillar-icon">&#9729;</div>
+      <h3>Cloud</h3>
+      <p>Encrypted health data vaults hosted on sovereign infrastructure. Your records replicated across secure nodes, never on corporate servers.</p>
+    </div>
+    <div class="pillar-card reveal">
+      <div class="pillar-icon">&#8635;</div>
+      <h3>Continuity</h3>
+      <p>Persistent health identity that survives provider changes, insurance switches, and jurisdictional moves. Your health story stays whole.</p>
+    </div>
+    <div class="pillar-card reveal">
+      <div class="pillar-icon">&#128273;</div>
+      <h3>SSI</h3>
+      <p>KERI-rooted self-sovereign identity for every health interaction. Passkey authentication — no passwords, no SMS codes, no friction.</p>
+    </div>
+    <div class="pillar-card reveal">
+      <div class="pillar-icon">&#9080;</div>
+      <h3>On-Chain</h3>
+      <p>Cardano-anchored audit trails for consent events, credential issuance, and data access logs. Immutable, transparent, verifiable.</p>
+    </div>
+    <div class="pillar-card reveal">
+      <div class="pillar-icon">&#9881;</div>
+      <h3>AI</h3>
+      <p>Privacy-preserving AI agents that analyse your health data locally. Insights without exposure. Intelligence without surveillance.</p>
+    </div>
+    <div class="pillar-card reveal">
+      <div class="pillar-icon">&#9638;</div>
+      <h3>Models</h3>
+      <p>ACDC credential schemas for health data — immunisations, pathology, prescriptions, mental health, allied health — all verifiable.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── IDENTITY (DARK SECTION) ── -->
+<section class="identity-section" id="identity">
+  <div class="section-eyebrow reveal">KERI Health Identity</div>
+  <h2 class="section-title reveal">Cryptographic trust<br>for every consultation</h2>
+  <p class="section-sub reveal">
+    From GP visit to specialist referral — every health interaction is anchored to your sovereign identity.
+  </p>
+  <div class="identity-grid">
+    <div class="identity-flow reveal">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-content">
+          <h4>Inception</h4>
+          <p>Create your Health AID with biometric passkey. Pre-rotated keys ensure your identity survives any device loss.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-content">
+          <h4>Credential Issuance</h4>
+          <p>Practitioners issue ACDC health credentials — diagnoses, prescriptions, results — anchored to your KEL.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-content">
+          <h4>Selective Disclosure</h4>
+          <p>Share only what's needed. Prove vaccination status without revealing diagnosis. Prove eligibility without exposing records.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-content">
+          <h4>Consent Ledger</h4>
+          <p>Every data access is logged as a KERI interaction event and anchored on-chain. Full audit trail, always.</p>
+        </div>
+      </div>
+    </div>
+    <div class="identity-card-demo reveal">
+      <div class="id-card-header">
+        <div class="id-card-logo">sd</div>
+        <div>
+          <div class="id-card-title">Health Identity Card</div>
+          <div class="id-card-subtitle">selfdriven.health Sovereign Credential</div>
+        </div>
+      </div>
+      <div class="id-field">
+        <div class="id-field-label">Health AID</div>
+        <div class="id-field-value">EKE4g_0hDGBOqDLKzNBT3kFOPxoP7wXkqt</div>
+      </div>
+      <div class="id-field">
+        <div class="id-field-label">KEL Sequence</div>
+        <div class="id-field-value">sn: 47 &middot; witnesses: 3/3 confirmed</div>
+      </div>
+      <div class="id-field">
+        <div class="id-field-label">Latest Credential SAID</div>
+        <div class="id-field-value blurred">EBfdlu8hBzNbReMsIp0vTFu0csh_LBAsA7_1aH2Fbx94</div>
+      </div>
+      <div class="ecg-container">
+        <svg viewBox="0 0 600 80" preserveAspectRatio="none">
+          <path class="ecg-line" d="M0,40 L60,40 L80,40 L90,20 L100,60 L110,10 L120,70 L130,40 L150,40 L200,40 L260,40 L270,40 L280,20 L290,60 L300,10 L310,70 L320,40 L340,40 L400,40 L460,40 L470,40 L480,20 L490,60 L500,10 L510,70 L520,40 L540,40 L600,40" stroke-dasharray="1200" stroke-dashoffset="1200"/>
+        </svg>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <span class="id-badge">Identity Verified</span>
+        <span style="font-size: 11px; color: rgba(245,242,237,0.4); font-family: 'JetBrains Mono', monospace;">Last event: 2026-03-16T09:42:18Z</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 8 AREAS OF FOCUS ── -->
+<section id="areas">
+  <div class="section-eyebrow reveal">Organisational Framework</div>
+  <h2 class="section-title reveal">8 Areas of Focus</h2>
+  <p class="section-sub reveal">
+    selfdriven.health is structured around 8 Areas of Focus — each led by a human conductor orchestrating AI agents.
+  </p>
+  <div class="aof-grid" id="aofGrid">
+    <div class="aof-card reveal" data-area="0">
+      <div class="aof-num">01</div>
+      <h3>Direction</h3>
+      <p>Health strategy, regulatory roadmap, TGA & AHPRA alignment.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Digital health standards compliance</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>My Health Record integration strategy</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Preventive care vision & KPIs</div>
+      </div>
+    </div>
+    <div class="aof-card reveal" data-area="1">
+      <div class="aof-num">02</div>
+      <h3>Engagement</h3>
+      <p>Patient communities, practitioner networks, health ecosystem partnerships.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Practitioner onboarding programs</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Patient advocacy partnerships</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Allied health network growth</div>
+      </div>
+    </div>
+    <div class="aof-card reveal" data-area="2">
+      <div class="aof-num">03</div>
+      <h3>Enablement</h3>
+      <p>Health literacy, patient education, developer tools for health integrations.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Health credential SDK & documentation</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Patient health literacy resources</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>FHIR/HL7 integration guides</div>
+      </div>
+    </div>
+    <div class="aof-card reveal" data-area="3">
+      <div class="aof-num">04</div>
+      <h3>Protocols</h3>
+      <p>KERI health identity, ACDC credential schemas, FHIR interoperability.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>KERI AID + ACDC health credential layer</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>FHIR R4 resource mapping</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Zero-knowledge proof for selective disclosure</div>
+      </div>
+    </div>
+    <div class="aof-card reveal" data-area="4">
+      <div class="aof-num">05</div>
+      <h3>Sustainability</h3>
+      <p>Revenue model, grant funding, health outcomes as value metrics.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Credential verification fee model</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Health data insights marketplace</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Government digital health grants</div>
+      </div>
+    </div>
+    <div class="aof-card reveal" data-area="5">
+      <div class="aof-num">06</div>
+      <h3>Processes</h3>
+      <p>Clinical workflows, consent management, incident response for health data.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Consent lifecycle automation</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Health data breach response protocol</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Practitioner credential verification flow</div>
+      </div>
+    </div>
+    <div class="aof-card reveal" data-area="6">
+      <div class="aof-num">07</div>
+      <h3>Accountability</h3>
+      <p>Clinical governance, audit trails, transparent health data access reporting.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>On-chain consent audit trail</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Patient access log transparency</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Regulatory compliance dashboards</div>
+      </div>
+    </div>
+    <div class="aof-card reveal" data-area="7">
+      <div class="aof-num">08</div>
+      <h3>Organisational</h3>
+      <p>Human Conductor model, decentralised health operations, team structure.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>8 conductors × AI agent orchestration</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>70/30 focus distribution model</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>KERI-delegated agent authority</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HEALTH VAULT ── -->
+<section class="vault-section" id="vault">
+  <div class="section-eyebrow reveal">Interactive Demo</div>
+  <h2 class="section-title reveal">Your Health Vault</h2>
+  <p class="section-sub reveal">
+    Explore what a sovereign health data vault looks like — credentials, timeline, and consent all under your control.
+  </p>
+  <div class="vault-container reveal">
+    <div class="vault-tabs">
+      <button class="vault-tab active" data-tab="credentials">Credentials</button>
+      <button class="vault-tab" data-tab="timeline">Timeline</button>
+      <button class="vault-tab" data-tab="consent">Consent Log</button>
+      <button class="vault-tab" data-tab="sharing">Sharing</button>
+    </div>
+    <div class="vault-panel" id="vaultPanel">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section" id="cta">
+  <div class="cta-card reveal">
+    <h2>Own your health story</h2>
+    <p>Join the sovereign health movement. No passwords. No middlemen. Just you, your keys, and your data.</p>
+    <div class="cta-actions">
+      <button class="btn-primary">Create Health AID</button>
+      <button class="btn-outline">Read the Whitepaper</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-brand">selfdriven<span class="dot">.health</span></div>
+  <div class="footer-links">
+    <a href="https://selfdriven.foundation">Foundation</a>
+    <a href="https://selfdriven.community">Community</a>
+    <a href="https://selfdriven.ai">AI</a>
+    <a href="https://selfdriven.network">Network</a>
+    <a href="https://selfdriven.money">Money</a>
+    <a href="https://selfdriven.pro">Pro</a>
+  </div>
+  <div class="footer-legal">
+    &copy; 2026 selfdriven Foundation. Sovereign health identity powered by KERI/ACDC.
+  </div>
+</footer>
+
+<script>
+// ── NAV SCROLL ──
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// ── MOBILE NAV ──
+const toggle = document.getElementById('navToggle');
+const links = document.getElementById('navLinks');
+toggle.addEventListener('click', () => {
+  toggle.classList.toggle('open');
+  links.classList.toggle('open');
+});
+links.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => { toggle.classList.remove('open'); links.classList.remove('open'); });
+});
+
+// ── SCROLL REVEAL ──
+const reveals = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      entry.target.style.transitionDelay = `${i * 0.08}s`;
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+reveals.forEach(el => revealObserver.observe(el));
+
+// ── STAT COUNTER ──
+const statNums = document.querySelectorAll('.stat-num');
+const countObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const target = parseInt(el.dataset.count);
+      const duration = 1200;
+      const start = performance.now();
+      const tick = (now) => {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(target * eased);
+        if (progress < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+      countObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+statNums.forEach(el => countObserver.observe(el));
+
+// ── AOF EXPAND ──
+document.querySelectorAll('.aof-card').forEach(card => {
+  card.addEventListener('click', () => {
+    card.classList.toggle('active');
+  });
+});
+
+// ── VAULT TABS ──
+const vaultData = {
+  credentials: {
+    title: 'Health Credentials',
+    desc: 'ACDC-anchored verifiable health credentials issued by registered practitioners.',
+    content: `
+      <div class="credential-list">
+        <div class="credential-item">
+          <div class="credential-left">
+            <div class="credential-icon green">&#128137;</div>
+            <div>
+              <div class="credential-name">COVID-19 Vaccination Record</div>
+              <div class="credential-meta">SAID: EBfdlu8h…Fbx94 &middot; Issuer: NSW Health</div>
+            </div>
+          </div>
+          <span class="credential-status verified">Verified</span>
+        </div>
+        <div class="credential-item">
+          <div class="credential-left">
+            <div class="credential-icon accent">&#128300;</div>
+            <div>
+              <div class="credential-name">Pathology Results — Full Blood Count</div>
+              <div class="credential-meta">SAID: EKqR7xNa…j2p18 &middot; Issuer: Sonic Healthcare</div>
+            </div>
+          </div>
+          <span class="credential-status verified">Verified</span>
+        </div>
+        <div class="credential-item">
+          <div class="credential-left">
+            <div class="credential-icon green">&#128138;</div>
+            <div>
+              <div class="credential-name">Active Prescription — Metformin 500mg</div>
+              <div class="credential-meta">SAID: ELmT9vRw…kN3a7 &middot; Issuer: Dr. J. Chen</div>
+            </div>
+          </div>
+          <span class="credential-status verified">Verified</span>
+        </div>
+        <div class="credential-item">
+          <div class="credential-left">
+            <div class="credential-icon accent">&#129657;</div>
+            <div>
+              <div class="credential-name">Mental Health Care Plan</div>
+              <div class="credential-meta">SAID: EPwQ4cXy…mR8b2 &middot; Issuer: Dr. S. Patel</div>
+            </div>
+          </div>
+          <span class="credential-status pending">Pending Witness</span>
+        </div>
+      </div>
+    `
+  },
+  timeline: {
+    title: 'Health Timeline',
+    desc: 'Every health event anchored in your Key Event Log — tamper-evident, witnessed, and yours.',
+    content: `
+      <div class="timeline-visual">
+        <div class="timeline-line"></div>
+        <div class="timeline-event">
+          <div class="timeline-dot green"></div>
+          <div class="timeline-event-content">
+            <div class="timeline-event-title">Prescription Renewed — Metformin 500mg</div>
+            <div class="timeline-event-time">2026-03-14 &middot; 10:24 AEDT</div>
+            <div class="timeline-event-hash">ixn sn:47 &middot; digest: sha256-a4f8e2c…</div>
+          </div>
+        </div>
+        <div class="timeline-event">
+          <div class="timeline-dot"></div>
+          <div class="timeline-event-content">
+            <div class="timeline-event-title">Pathology Results Received — FBC</div>
+            <div class="timeline-event-time">2026-03-10 &middot; 14:08 AEDT</div>
+            <div class="timeline-event-hash">ixn sn:46 &middot; digest: sha256-b7d1f3a…</div>
+          </div>
+        </div>
+        <div class="timeline-event">
+          <div class="timeline-dot green"></div>
+          <div class="timeline-event-content">
+            <div class="timeline-event-title">GP Consultation — Annual Health Check</div>
+            <div class="timeline-event-time">2026-03-08 &middot; 09:15 AEDT</div>
+            <div class="timeline-event-hash">ixn sn:45 &middot; digest: sha256-c3e9a1b…</div>
+          </div>
+        </div>
+        <div class="timeline-event">
+          <div class="timeline-dot"></div>
+          <div class="timeline-event-content">
+            <div class="timeline-event-title">Consent Granted — Specialist Referral</div>
+            <div class="timeline-event-time">2026-02-28 &middot; 16:42 AEDT</div>
+            <div class="timeline-event-hash">ixn sn:44 &middot; digest: sha256-d5f2b8c…</div>
+          </div>
+        </div>
+        <div class="timeline-event">
+          <div class="timeline-dot green"></div>
+          <div class="timeline-event-content">
+            <div class="timeline-event-title">Mental Health Care Plan Created</div>
+            <div class="timeline-event-time">2026-02-20 &middot; 11:30 AEDT</div>
+            <div class="timeline-event-hash">ixn sn:43 &middot; digest: sha256-e8a4c7d…</div>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  consent: {
+    title: 'Consent Ledger',
+    desc: 'Granular, revocable consent for every data access — logged on-chain via Cardano.',
+    content: `
+      <div class="credential-list">
+        <div class="credential-item">
+          <div class="credential-left">
+            <div class="credential-icon green">&#9989;</div>
+            <div>
+              <div class="credential-name">Dr. J. Chen — Full Record Access</div>
+              <div class="credential-meta">Granted 2026-01-15 &middot; Expires 2027-01-15</div>
+            </div>
+          </div>
+          <span class="credential-status verified">Active</span>
+        </div>
+        <div class="credential-item">
+          <div class="credential-left">
+            <div class="credential-icon accent">&#128065;</div>
+            <div>
+              <div class="credential-name">Sonic Healthcare — Pathology Only</div>
+              <div class="credential-meta">Granted 2026-03-08 &middot; Single-use</div>
+            </div>
+          </div>
+          <span class="credential-status verified">Active</span>
+        </div>
+        <div class="credential-item">
+          <div class="credential-left">
+            <div class="credential-icon green">&#128274;</div>
+            <div>
+              <div class="credential-name">Travel Insurance — Vaccination Proof Only</div>
+              <div class="credential-meta">Granted 2026-02-10 &middot; ZK selective disclosure</div>
+            </div>
+          </div>
+          <span class="credential-status verified">Active</span>
+        </div>
+        <div class="credential-item" style="opacity: 0.5;">
+          <div class="credential-left">
+            <div class="credential-icon accent">&#10060;</div>
+            <div>
+              <div class="credential-name">Previous GP — Dr. M. Wong</div>
+              <div class="credential-meta">Revoked 2025-12-01 &middot; On-chain tx: cardano:abc…</div>
+            </div>
+          </div>
+          <span class="credential-status" style="background: rgba(200,68,47,0.1); color: var(--accent);">Revoked</span>
+        </div>
+      </div>
+    `
+  },
+  sharing: {
+    title: 'Selective Sharing',
+    desc: 'Share exactly what\'s needed — nothing more. Zero-knowledge proofs let you prove without revealing.',
+    content: `
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px;">
+          <div style="font-size: 28px; margin-bottom: 12px;">&#128737;</div>
+          <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">Prove Vaccination</div>
+          <div style="font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 16px;">Prove you're vaccinated without revealing which vaccine, when, or where.</div>
+          <div style="padding: 8px 14px; border-radius: 10px; background: var(--health-green-dim); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--health-green);">ZK-proof: vaccination_status = true</div>
+        </div>
+        <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px;">
+          <div style="font-size: 28px; margin-bottom: 12px;">&#128202;</div>
+          <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">Share Lab Results</div>
+          <div style="font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 16px;">Send specific pathology results to a specialist with time-limited access.</div>
+          <div style="padding: 8px 14px; border-radius: 10px; background: var(--accent-dim); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent);">ACDC: scope=pathology_fbc, ttl=72h</div>
+        </div>
+        <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px;">
+          <div style="font-size: 28px; margin-bottom: 12px;">&#127973;</div>
+          <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">Emergency Access</div>
+          <div style="font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 16px;">Pre-authorise emergency responders to access critical info — allergies, conditions, medications.</div>
+          <div style="padding: 8px 14px; border-radius: 10px; background: var(--health-green-dim); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--health-green);">ACDC: scope=emergency, trigger=sos</div>
+        </div>
+        <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px;">
+          <div style="font-size: 28px; margin-bottom: 12px;">&#128200;</div>
+          <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">Research Contribution</div>
+          <div style="font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 16px;">Contribute anonymised data to health research. You choose what, to whom, and for how long.</div>
+          <div style="padding: 8px 14px; border-radius: 10px; background: var(--accent-dim); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent);">ACDC: scope=anon_research, k-anon=5</div>
+        </div>
+      </div>
+    `
+  }
+};
+
+const vaultTabs = document.querySelectorAll('.vault-tab');
+const vaultPanel = document.getElementById('vaultPanel');
+
+function renderVaultTab(key) {
+  const d = vaultData[key];
+  vaultPanel.innerHTML = `
+    <div class="vault-panel-title">${d.title}</div>
+    <div class="vault-panel-desc">${d.desc}</div>
+    ${d.content}
+  `;
+}
+renderVaultTab('credentials');
+
+vaultTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    vaultTabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    vaultPanel.style.opacity = '0';
+    setTimeout(() => {
+      renderVaultTab(tab.dataset.tab);
+      vaultPanel.style.opacity = '1';
+    }, 150);
+  });
+});
+vaultPanel.style.transition = 'opacity 0.15s ease';
+</script>
+</body>
+</html>

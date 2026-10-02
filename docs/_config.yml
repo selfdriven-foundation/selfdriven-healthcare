@@ -1,0 +1,15 @@
+title: "selfdriven Health"
+description: "Health systems for a better human experience in the era of Generally Available High Intelligence (GAHI)."
+baseurl: ""
+url: ""
+context: "health"
+repo: "selfdriven-health"
+defaults:
+  - scope:
+      path: "pages"
+      type: "pages"
+    values:
+      layout: default
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag

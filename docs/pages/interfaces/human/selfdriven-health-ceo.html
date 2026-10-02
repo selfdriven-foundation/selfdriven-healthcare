@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>selfdriven.health — For Hospital Leadership</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── DESIGN TOKENS ── */
+:root {
+  --bg: #f5f2ed;
+  --surface: #edeae3;
+  --surface2: #e5e1d8;
+  --border: #ddd8ce;
+  --text: #1a1410;
+  --muted: #6b5f52;
+  --muted2: #9e9085;
+  --accent: #c8442f;
+  --accent-dim: rgba(200, 68, 47, 0.10);
+  --accent-strong: rgba(200, 68, 47, 0.18);
+  --health-green: #2a9d6e;
+  --health-green-dim: rgba(42, 157, 110, 0.10);
+  --health-teal: #1a8a7a;
+  --card-radius: 20px;
+  --shadow: 0 2px 16px rgba(0,0,0,0.07);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.10);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0a0a0a;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --border: #2a2a2a;
+    --text: #f0ede8;
+    --muted: #b0a89e;
+    --muted2: #7a7268;
+    --accent: #e85d4a;
+    --accent-dim: rgba(232, 93, 74, 0.12);
+    --accent-strong: rgba(232, 93, 74, 0.20);
+    --health-green: #3ec98a;
+    --health-green-dim: rgba(62, 201, 138, 0.12);
+    --health-teal: #2cb8a4;
+    --shadow: 0 2px 16px rgba(0,0,0,0.4);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
+  }
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg); color: var(--text);
+  line-height: 1.6; -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding: 0 40px; height: 72px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background 0.3s, backdrop-filter 0.3s;
+}
+nav.scrolled {
+  background: rgba(245,242,237,0.85);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 1px 0 var(--border);
+}
+@media (prefers-color-scheme: dark) {
+  nav.scrolled { background: rgba(10,10,10,0.85); }
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 12px;
+  font-weight: 800; font-size: 18px; letter-spacing: -0.03em;
+}
+.nav-brand .dot { color: var(--accent); }
+.nav-logo {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 900; font-size: 14px;
+  box-shadow: 0 2px 8px rgba(200,68,47,0.25);
+}
+.nav-links { display: flex; gap: 32px; align-items: center; }
+.nav-links a {
+  font-size: 14px; font-weight: 500; color: var(--muted);
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  padding: 10px 24px; border-radius: 999px;
+  background: var(--accent); color: #fff !important;
+  font-weight: 600; font-size: 13px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(200,68,47,0.3); }
+.nav-audience {
+  padding: 6px 14px; border-radius: 999px;
+  background: var(--accent-dim); color: var(--accent);
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+}
+.nav-toggle {
+  display: none; background: none; border: none; cursor: pointer;
+  width: 32px; height: 32px; position: relative;
+}
+.nav-toggle span {
+  display: block; width: 22px; height: 2px;
+  background: var(--text); position: absolute; left: 5px;
+  transition: all 0.3s;
+}
+.nav-toggle span:nth-child(1) { top: 9px; }
+.nav-toggle span:nth-child(2) { top: 15px; }
+.nav-toggle span:nth-child(3) { top: 21px; }
+.nav-toggle.open span:nth-child(1) { top: 15px; transform: rotate(45deg); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(3) { top: 15px; transform: rotate(-45deg); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh; display: flex; align-items: center;
+  padding: 120px 60px 80px; position: relative; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 50% 50% at 65% 45%, var(--accent-dim) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 50% at 25% 65%, var(--health-green-dim) 0%, transparent 70%);
+}
+.hero-grid {
+  position: absolute; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 80px 80px; opacity: 0.25;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 30%, transparent 80%);
+}
+.hero-content { position: relative; z-index: 1; max-width: 780px; }
+.hero-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 24px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-eyebrow::before { content: ''; width: 32px; height: 2px; background: var(--accent); }
+.hero h1 {
+  font-size: clamp(44px, 6.5vw, 80px); font-weight: 900;
+  letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 28px;
+}
+.hero h1 em {
+  font-style: normal; color: var(--accent); position: relative;
+}
+.hero h1 em::after {
+  content: ''; position: absolute; bottom: 4px; left: 0; right: 0;
+  height: 6px; background: var(--accent-strong); border-radius: 3px;
+}
+.hero-sub {
+  font-size: 18px; line-height: 1.7; color: var(--muted);
+  max-width: 620px; margin-bottom: 40px;
+}
+.hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+.btn-primary {
+  padding: 16px 36px; border-radius: 999px;
+  background: var(--accent); color: #fff;
+  font-weight: 700; font-size: 15px; border: none; cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-family: 'Poppins', sans-serif;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(200,68,47,0.3); }
+.btn-outline {
+  padding: 16px 36px; border-radius: 999px;
+  background: transparent; color: var(--text);
+  font-weight: 600; font-size: 15px; border: 2px solid var(--border);
+  cursor: pointer; transition: border-color 0.2s, background 0.2s;
+  font-family: 'Poppins', sans-serif;
+}
+.btn-outline:hover { border-color: var(--accent); background: var(--accent-dim); }
+
+/* ── HERO DASHBOARD PREVIEW ── */
+.hero-visual {
+  position: absolute; right: -20px; top: 52%; transform: translateY(-50%);
+  width: 480px; z-index: 0; perspective: 1000px;
+}
+.dashboard-preview {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--card-radius); padding: 24px;
+  box-shadow: var(--shadow-lg);
+  transform: rotateY(-8deg) rotateX(2deg);
+  transition: transform 0.5s;
+}
+.dashboard-preview:hover { transform: rotateY(-2deg) rotateX(0deg); }
+.dp-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
+}
+.dp-title { font-weight: 700; font-size: 13px; }
+.dp-badge {
+  padding: 4px 10px; border-radius: 999px;
+  background: var(--health-green-dim); color: var(--health-green);
+  font-size: 10px; font-weight: 600;
+}
+.dp-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.dp-metric {
+  background: var(--bg); border-radius: 12px; padding: 14px;
+  border: 1px solid var(--border);
+}
+.dp-metric-label { font-size: 10px; color: var(--muted2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.dp-metric-value { font-size: 22px; font-weight: 900; letter-spacing: -0.02em; margin-top: 4px; }
+.dp-metric-value.green { color: var(--health-green); }
+.dp-metric-value.accent { color: var(--accent); }
+.dp-bar-group { display: flex; flex-direction: column; gap: 8px; }
+.dp-bar-row { display: flex; align-items: center; gap: 10px; }
+.dp-bar-label { font-size: 10px; color: var(--muted); width: 80px; flex-shrink: 0; }
+.dp-bar-track { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.dp-bar-fill { height: 100%; border-radius: 4px; transition: width 1.5s ease-out; }
+.dp-bar-fill.green { background: var(--health-green); }
+.dp-bar-fill.accent { background: var(--accent); }
+.dp-bar-fill.teal { background: var(--health-teal); }
+
+/* ── STATS ── */
+.stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  padding: 0 60px; gap: 24px; margin-top: -40px;
+  position: relative; z-index: 2;
+}
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--card-radius); padding: 32px;
+  text-align: center; transition: transform 0.3s, box-shadow 0.3s;
+}
+.stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.stat-num {
+  font-size: 36px; font-weight: 900; letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+.stat-num.accent { color: var(--accent); }
+.stat-num.green { color: var(--health-green); }
+.stat-label { font-size: 13px; color: var(--muted); font-weight: 500; }
+.stat-context {
+  font-size: 11px; color: var(--muted2); margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── SECTIONS ── */
+section { padding: 120px 60px; }
+.section-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 16px;
+}
+.section-title {
+  font-size: clamp(32px, 4vw, 52px); font-weight: 900;
+  letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 20px;
+}
+.section-sub {
+  font-size: 17px; color: var(--muted); max-width: 640px;
+  line-height: 1.7; margin-bottom: 60px;
+}
+
+/* ── PAIN POINTS ── */
+.pain-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+}
+.pain-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--card-radius); padding: 36px;
+  border-top: 3px solid transparent;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+.pain-card:hover {
+  transform: translateY(-6px); box-shadow: var(--shadow-lg);
+  border-top-color: var(--accent);
+}
+.pain-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 24px; font-size: 26px;
+}
+.pain-icon.red { background: var(--accent-dim); }
+.pain-icon.green { background: var(--health-green-dim); }
+.pain-card h3 { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 12px; }
+.pain-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+.pain-stat {
+  margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);
+  display: flex; align-items: baseline; gap: 8px;
+}
+.pain-stat-num { font-size: 28px; font-weight: 900; color: var(--accent); }
+.pain-stat-label { font-size: 12px; color: var(--muted); }
+
+/* ── ROI CALCULATOR ── */
+.roi-section { padding: 120px 60px; }
+.roi-container {
+  max-width: 960px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+  align-items: start;
+}
+.roi-controls {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--card-radius); padding: 40px;
+  border-top: 3px solid var(--accent);
+}
+.roi-controls h3 {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px;
+}
+.roi-controls-desc {
+  font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.7;
+}
+.slider-group { margin-bottom: 28px; }
+.slider-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 10px;
+}
+.slider-label { font-size: 13px; font-weight: 600; }
+.slider-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; font-weight: 600; color: var(--accent);
+}
+input[type="range"] {
+  -webkit-appearance: none; width: 100%; height: 8px;
+  background: var(--border); border-radius: 4px; outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 22px; height: 22px;
+  background: var(--accent); border-radius: 50%; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(200,68,47,0.3);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 22px; height: 22px;
+  background: var(--accent); border-radius: 50%; border: none; cursor: pointer;
+}
+.roi-results {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--card-radius); padding: 40px;
+  border-top: 3px solid var(--health-green);
+}
+.roi-result-item {
+  margin-bottom: 24px; padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.roi-result-item:last-child { margin-bottom: 0; padding-bottom: 0; border: none; }
+.roi-result-label { font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+.roi-result-value { font-size: 32px; font-weight: 900; letter-spacing: -0.03em; }
+.roi-result-value.green { color: var(--health-green); }
+.roi-result-value.accent { color: var(--accent); }
+.roi-result-detail {
+  font-size: 12px; color: var(--muted2); margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.roi-total-card {
+  background: var(--health-green-dim); border-radius: 16px;
+  padding: 24px; text-align: center; margin-top: 24px;
+}
+.roi-total-label { font-size: 11px; font-weight: 700; color: var(--health-green); text-transform: uppercase; letter-spacing: 0.1em; }
+.roi-total-value { font-size: 40px; font-weight: 900; color: var(--health-green); letter-spacing: -0.03em; }
+
+/* ── DARK SECTION ── */
+.dark-section {
+  background: var(--text); color: var(--bg); padding: 120px 60px;
+  position: relative; overflow: hidden;
+}
+@media (prefers-color-scheme: dark) {
+  .dark-section { background: #141414; color: var(--text); }
+}
+.dark-section .section-eyebrow { color: var(--accent); }
+.dark-section .section-sub { color: rgba(245,242,237,0.6); }
+@media (prefers-color-scheme: dark) {
+  .dark-section .section-sub { color: var(--muted); }
+}
+.compliance-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
+}
+.compliance-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--card-radius); padding: 32px;
+  transition: border-color 0.3s, background 0.3s;
+}
+.compliance-card:hover {
+  border-color: rgba(200,68,47,0.3);
+  background: rgba(255,255,255,0.06);
+}
+.compliance-card-header {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
+}
+.compliance-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--accent-dim); display: flex;
+  align-items: center; justify-content: center; font-size: 20px;
+}
+.compliance-card h4 { font-size: 16px; font-weight: 800; }
+.compliance-card p {
+  font-size: 13px; line-height: 1.7;
+  color: rgba(245,242,237,0.55);
+}
+@media (prefers-color-scheme: dark) {
+  .compliance-card p { color: var(--muted); }
+}
+.compliance-tag {
+  display: inline-block; margin-top: 12px;
+  padding: 4px 10px; border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  background: rgba(200,68,47,0.12); color: var(--accent);
+}
+
+/* ── INTEGRATION ARCHITECTURE ── */
+.arch-container {
+  max-width: 880px; margin: 0 auto;
+}
+.arch-layers { display: flex; flex-direction: column; gap: 0; }
+.arch-layer {
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 28px 32px; display: flex; align-items: center; gap: 24px;
+  transition: background 0.2s;
+  position: relative;
+}
+.arch-layer:first-child { border-radius: var(--card-radius) var(--card-radius) 0 0; }
+.arch-layer:last-child { border-radius: 0 0 var(--card-radius) var(--card-radius); }
+.arch-layer:not(:last-child) { border-bottom: none; }
+.arch-layer:hover { background: var(--surface2); }
+.arch-layer-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 600; color: var(--accent);
+  width: 28px; text-align: right; flex-shrink: 0;
+}
+.arch-layer-bar {
+  width: 4px; height: 100%; background: var(--accent);
+  border-radius: 2px; position: absolute; left: 0; top: 0; bottom: 0;
+  opacity: 0; transition: opacity 0.3s;
+}
+.arch-layer:hover .arch-layer-bar { opacity: 1; }
+.arch-layer-content { flex: 1; }
+.arch-layer-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+.arch-layer-desc { font-size: 13px; color: var(--muted); }
+.arch-layer-tech {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--muted2);
+  display: flex; gap: 12px; flex-wrap: wrap; flex-shrink: 0;
+}
+.arch-tech-tag {
+  padding: 3px 8px; border-radius: 6px;
+  background: var(--accent-dim); color: var(--accent);
+  font-size: 10px; font-weight: 600;
+}
+.arch-connector {
+  width: 2px; height: 16px; background: var(--border);
+  margin: 0 auto; position: relative;
+}
+
+/* ── TABS (USE CASES) ── */
+.tabs-section { padding: 120px 60px; }
+.tabs-container { max-width: 960px; margin: 0 auto; }
+.tabs-nav { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
+.tab-btn {
+  padding: 10px 20px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--border);
+  font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 13px;
+  color: var(--muted); cursor: pointer; transition: all 0.2s;
+}
+.tab-btn:hover { border-color: var(--accent); color: var(--text); }
+.tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.tab-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--card-radius); padding: 40px;
+  min-height: 300px; border-top: 3px solid var(--accent);
+  transition: opacity 0.15s ease;
+}
+.tab-panel-title { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
+.tab-panel-desc { font-size: 14px; color: var(--muted); margin-bottom: 28px; line-height: 1.7; }
+.outcome-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.outcome-card {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px;
+}
+.outcome-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.outcome-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.outcome-metric {
+  margin-top: 12px; padding: 6px 12px; border-radius: 10px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  display: inline-block;
+}
+.outcome-metric.green { background: var(--health-green-dim); color: var(--health-green); }
+.outcome-metric.accent { background: var(--accent-dim); color: var(--accent); }
+
+/* ── 8 AREAS OF FOCUS ── */
+.aof-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+}
+.aof-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--card-radius); padding: 28px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer; position: relative; overflow: hidden;
+}
+.aof-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.aof-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--accent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.3s;
+}
+.aof-card:hover::before { transform: scaleX(1); }
+.aof-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 12px;
+}
+.aof-card h3 { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
+.aof-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.aof-expanded {
+  display: none; margin-top: 16px; padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.aof-card.active .aof-expanded { display: block; }
+.aof-detail {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--muted); margin-bottom: 8px;
+}
+.aof-detail-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); flex-shrink: 0;
+}
+
+/* ── TIMELINE ── */
+.timeline-section { padding: 120px 60px; }
+.timeline-container { max-width: 740px; margin: 0 auto; position: relative; }
+.timeline-line {
+  position: absolute; top: 0; bottom: 0; left: 28px;
+  width: 2px; background: var(--border);
+}
+.timeline-item {
+  display: flex; gap: 24px; padding: 20px 0;
+  position: relative;
+}
+.timeline-dot {
+  width: 16px; height: 16px; border-radius: 50%;
+  flex-shrink: 0; margin-top: 3px;
+  position: relative; left: 21px; z-index: 1;
+  border: 3px solid var(--bg);
+}
+.timeline-dot.accent { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.timeline-dot.green { background: var(--health-green); box-shadow: 0 0 0 3px var(--health-green-dim); }
+.timeline-content { padding-left: 16px; }
+.timeline-phase {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 4px;
+}
+.timeline-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.timeline-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.timeline-duration {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--muted2); margin-top: 6px;
+}
+
+/* ── CTA ── */
+.cta-section { padding: 120px 60px; text-align: center; }
+.cta-card {
+  max-width: 760px; margin: 0 auto;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--card-radius); padding: 60px;
+  border-top: 3px solid var(--accent);
+}
+.cta-card h2 {
+  font-size: clamp(28px, 3.5vw, 42px); font-weight: 900;
+  letter-spacing: -0.04em; margin-bottom: 16px;
+}
+.cta-card p {
+  font-size: 16px; color: var(--muted); margin-bottom: 36px; line-height: 1.7;
+}
+.cta-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+/* ── FOOTER ── */
+footer {
+  padding: 60px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 24px;
+}
+.footer-brand { font-weight: 800; font-size: 16px; }
+.footer-brand .dot { color: var(--accent); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a {
+  font-size: 13px; color: var(--muted); font-weight: 500; transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--accent); }
+.footer-legal { font-size: 12px; color: var(--muted2); width: 100%; margin-top: 12px; }
+
+/* ── REVEAL ── */
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .pain-grid { grid-template-columns: repeat(2, 1fr); }
+  .aof-grid { grid-template-columns: repeat(2, 1fr); }
+  .compliance-grid { grid-template-columns: 1fr; }
+  .roi-container { grid-template-columns: 1fr; }
+  .hero-visual { display: none; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .outcome-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  section, .hero, .cta-section, .roi-section, .tabs-section, .timeline-section, footer { padding-left: 24px; padding-right: 24px; }
+  .stats { padding: 0 24px; }
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  .nav-toggle { display: block; }
+  .nav-links.open {
+    display: flex; flex-direction: column;
+    position: absolute; top: 72px; left: 0; right: 0;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 24px; gap: 16px;
+  }
+  .pain-grid, .aof-grid { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .hero h1 { font-size: 38px; }
+  .dark-section { padding: 80px 24px; }
+  .arch-layer-tech { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav id="mainNav">
+  <a href="#" class="nav-brand">
+    <div class="nav-logo">sd</div>
+    selfdriven<span class="dot">.health</span>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <span class="nav-audience">For Hospital Leadership</span>
+    <a href="#challenges">Challenges</a>
+    <a href="#roi">ROI</a>
+    <a href="#compliance">Compliance</a>
+    <a href="#integration">Architecture</a>
+    <a href="#cta" class="nav-cta">Request Briefing</a>
+  </div>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">For Hospital CEOs & Health Executives</div>
+    <h1>Reduce risk.<br>Cut costs.<br><em>Own the trust.</em></h1>
+    <p class="hero-sub">
+      selfdriven.health gives your hospital cryptographic patient identity, automated consent management, and audit-grade compliance — eliminating the data breach surface while unlocking interoperability.
+    </p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="document.getElementById('roi').scrollIntoView({behavior:'smooth'})">See the ROI</button>
+      <button class="btn-outline" onclick="document.getElementById('integration').scrollIntoView({behavior:'smooth'})">View Architecture</button>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="dashboard-preview" id="dashPreview">
+      <div class="dp-header">
+        <div class="dp-title">Compliance Dashboard</div>
+        <div class="dp-badge">All Systems Active</div>
+      </div>
+      <div class="dp-metrics">
+        <div class="dp-metric">
+          <div class="dp-metric-label">Consent Coverage</div>
+          <div class="dp-metric-value green">98.4%</div>
+        </div>
+        <div class="dp-metric">
+          <div class="dp-metric-label">Breach Incidents</div>
+          <div class="dp-metric-value accent">0</div>
+        </div>
+        <div class="dp-metric">
+          <div class="dp-metric-label">Audit Readiness</div>
+          <div class="dp-metric-value green">100%</div>
+        </div>
+        <div class="dp-metric">
+          <div class="dp-metric-label">Avg Verification</div>
+          <div class="dp-metric-value">0.3s</div>
+        </div>
+      </div>
+      <div class="dp-bar-group">
+        <div class="dp-bar-row">
+          <div class="dp-bar-label">FHIR Sync</div>
+          <div class="dp-bar-track"><div class="dp-bar-fill green" style="width: 0%;" data-target="94"></div></div>
+        </div>
+        <div class="dp-bar-row">
+          <div class="dp-bar-label">KERI Events</div>
+          <div class="dp-bar-track"><div class="dp-bar-fill accent" style="width: 0%;" data-target="100"></div></div>
+        </div>
+        <div class="dp-bar-row">
+          <div class="dp-bar-label">Consent Log</div>
+          <div class="dp-bar-track"><div class="dp-bar-fill teal" style="width: 0%;" data-target="98"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS ── -->
+<div class="stats reveal">
+  <div class="stat-card">
+    <div class="stat-num accent" data-count="67" data-suffix="%">0%</div>
+    <div class="stat-label">Reduction in Admin Overhead</div>
+    <div class="stat-context">consent + identity automation</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num green" data-count="0">0</div>
+    <div class="stat-label">Passwords for Staff or Patients</div>
+    <div class="stat-context">passkey + biometric only</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num accent" data-count="100" data-suffix="%">0%</div>
+    <div class="stat-label">Audit Trail Coverage</div>
+    <div class="stat-context">KERI KEL + on-chain anchors</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num green" data-count="12" data-suffix="wk">0</div>
+    <div class="stat-label">Implementation Timeline</div>
+    <div class="stat-context">phased deployment</div>
+  </div>
+</div>
+
+<!-- ── CHALLENGES ── -->
+<section id="challenges">
+  <div class="section-eyebrow reveal">The Problem</div>
+  <h2 class="section-title reveal">Your hospital's<br>biggest vulnerabilities</h2>
+  <p class="section-sub reveal">
+    Health data breaches, consent fragmentation, and interoperability failures cost hospitals millions and erode patient trust.
+  </p>
+  <div class="pain-grid">
+    <div class="pain-card reveal">
+      <div class="pain-icon red">&#128274;</div>
+      <h3>Data Breach Exposure</h3>
+      <p>Centralised patient databases are honeypots. One breach exposes every record. Password-based access is the weakest link in your security chain.</p>
+      <div class="pain-stat">
+        <div class="pain-stat-num">$10.9M</div>
+        <div class="pain-stat-label">Average healthcare breach cost (2024)</div>
+      </div>
+    </div>
+    <div class="pain-card reveal">
+      <div class="pain-icon red">&#128196;</div>
+      <h3>Consent Chaos</h3>
+      <p>Paper consent forms, fragmented digital records, and no audit trail. When regulators ask "who accessed what and when?" — you're scrambling.</p>
+      <div class="pain-stat">
+        <div class="pain-stat-num">340hrs</div>
+        <div class="pain-stat-label">Annual staff hours on consent admin</div>
+      </div>
+    </div>
+    <div class="pain-card reveal">
+      <div class="pain-icon red">&#128260;</div>
+      <h3>Interoperability Failure</h3>
+      <p>Patient records siloed across EMRs, specialists, allied health. Transfer delays cost lives and create duplicate tests, wasted spend, and frustrated clinicians.</p>
+      <div class="pain-stat">
+        <div class="pain-stat-num">$1.2B</div>
+        <div class="pain-stat-label">Annual waste from poor interop (AU)</div>
+      </div>
+    </div>
+    <div class="pain-card reveal">
+      <div class="pain-icon red">&#9888;</div>
+      <h3>Regulatory Pressure</h3>
+      <p>Australian Privacy Act reforms, My Health Record obligations, and tightening OAIC enforcement. Non-compliance isn't just fines — it's front-page headlines.</p>
+      <div class="pain-stat">
+        <div class="pain-stat-num">$50M</div>
+        <div class="pain-stat-label">Maximum penalty (serious breach)</div>
+      </div>
+    </div>
+    <div class="pain-card reveal">
+      <div class="pain-icon red">&#128337;</div>
+      <h3>Credential Verification Lag</h3>
+      <p>Verifying practitioner credentials, patient identities, and insurance status takes days of manual process. Every delay is a clinical risk.</p>
+      <div class="pain-stat">
+        <div class="pain-stat-num">4.2 days</div>
+        <div class="pain-stat-label">Avg credential verification time</div>
+      </div>
+    </div>
+    <div class="pain-card reveal">
+      <div class="pain-icon red">&#128100;</div>
+      <h3>Patient Trust Deficit</h3>
+      <p>Patients don't trust hospitals with their data. 62% of Australians worry about health data misuse. Sovereign identity flips the model — patients control, you verify.</p>
+      <div class="pain-stat">
+        <div class="pain-stat-num">62%</div>
+        <div class="pain-stat-label">Patients concerned about data misuse</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ROI CALCULATOR ── -->
+<section class="roi-section" id="roi">
+  <div class="section-eyebrow reveal">Financial Impact</div>
+  <h2 class="section-title reveal">ROI Calculator</h2>
+  <p class="section-sub reveal">
+    Adjust the sliders to model your hospital's return on investment from selfdriven.health implementation.
+  </p>
+  <div class="roi-container reveal">
+    <div class="roi-controls">
+      <h3>Your Hospital</h3>
+      <p class="roi-controls-desc">Configure your hospital's profile to see projected savings and risk reduction.</p>
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">Annual Beds</span>
+          <span class="slider-value" id="bedsValue">300</span>
+        </div>
+        <input type="range" min="50" max="1000" value="300" id="bedsSlider">
+      </div>
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">Annual Patient Admissions</span>
+          <span class="slider-value" id="admissionsValue">25,000</span>
+        </div>
+        <input type="range" min="5000" max="100000" value="25000" step="1000" id="admissionsSlider">
+      </div>
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">Current IT Security Spend</span>
+          <span class="slider-value" id="securityValue">$2.4M</span>
+        </div>
+        <input type="range" min="500000" max="10000000" value="2400000" step="100000" id="securitySlider">
+      </div>
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-label">Consent Admin Staff (FTE)</span>
+          <span class="slider-value" id="staffValue">8</span>
+        </div>
+        <input type="range" min="2" max="30" value="8" id="staffSlider">
+      </div>
+    </div>
+    <div class="roi-results" id="roiResults">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ── COMPLIANCE (DARK) ── -->
+<section class="dark-section" id="compliance">
+  <div class="section-eyebrow reveal">Compliance & Governance</div>
+  <h2 class="section-title reveal">Audit-ready by<br>architecture, not effort</h2>
+  <p class="section-sub reveal">
+    selfdriven.health doesn't bolt compliance on — it bakes it into the cryptographic layer. Every interaction is witnessed, anchored, and verifiable.
+  </p>
+  <div class="compliance-grid">
+    <div class="compliance-card reveal">
+      <div class="compliance-card-header">
+        <div class="compliance-icon">&#128220;</div>
+        <h4>Australian Privacy Act</h4>
+      </div>
+      <p>APP 11 security, APP 6 use & disclosure, APP 12 access — all enforced cryptographically via KERI event logging and ACDC credential scoping.</p>
+      <span class="compliance-tag">APP 1-13 mapped</span>
+    </div>
+    <div class="compliance-card reveal">
+      <div class="compliance-card-header">
+        <div class="compliance-icon">&#127973;</div>
+        <h4>My Health Record Act</h4>
+      </div>
+      <p>Compliant data contribution, access controls aligned with MHR legislation. KERI interaction events create an immutable access log that satisfies ADHA requirements.</p>
+      <span class="compliance-tag">MHR Act s.59-77</span>
+    </div>
+    <div class="compliance-card reveal">
+      <div class="compliance-card-header">
+        <div class="compliance-icon">&#128737;</div>
+        <h4>ISO 27001:2022</h4>
+      </div>
+      <p>All 93 Annex A controls mapped. KERI provides architectural enforcement of access control, key management, and audit logging — beyond policy alone.</p>
+      <span class="compliance-tag">93/93 controls addressed</span>
+    </div>
+    <div class="compliance-card reveal">
+      <div class="compliance-card-header">
+        <div class="compliance-icon">&#9878;</div>
+        <h4>OAIC Notifiable Data Breach</h4>
+      </div>
+      <p>With patient-held keys and selective disclosure, breach surface is near-zero. Even if infrastructure is compromised, encrypted data is useless without patient keys.</p>
+      <span class="compliance-tag">NDB scheme compliant</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── INTEGRATION ARCHITECTURE ── -->
+<section id="integration">
+  <div class="section-eyebrow reveal">Technical Integration</div>
+  <h2 class="section-title reveal">Fits your stack.<br>Replaces nothing.</h2>
+  <p class="section-sub reveal">
+    selfdriven.health layers on top of your existing EMR, PAS, and clinical systems. No rip-and-replace. FHIR-native. Standards-first.
+  </p>
+  <div class="arch-container reveal">
+    <div class="arch-layers">
+      <div class="arch-layer">
+        <div class="arch-layer-bar"></div>
+        <div class="arch-layer-num">L5</div>
+        <div class="arch-layer-content">
+          <div class="arch-layer-title">Patient & Clinician Interface</div>
+          <div class="arch-layer-desc">Passkey login, biometric consent, credential presentation — zero-friction for patients and staff</div>
+        </div>
+        <div class="arch-layer-tech">
+          <span class="arch-tech-tag">WebAuthn</span>
+          <span class="arch-tech-tag">FIDO2</span>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-bar"></div>
+        <div class="arch-layer-num">L4</div>
+        <div class="arch-layer-content">
+          <div class="arch-layer-title">Credential & Consent Layer</div>
+          <div class="arch-layer-desc">ACDC health credentials, granular consent management, selective disclosure engine</div>
+        </div>
+        <div class="arch-layer-tech">
+          <span class="arch-tech-tag">ACDC</span>
+          <span class="arch-tech-tag">ZKP</span>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-bar"></div>
+        <div class="arch-layer-num">L3</div>
+        <div class="arch-layer-content">
+          <div class="arch-layer-title">Identity Infrastructure</div>
+          <div class="arch-layer-desc">KERI autonomous identifiers, key event logs, witness network, pre-rotation recovery</div>
+        </div>
+        <div class="arch-layer-tech">
+          <span class="arch-tech-tag">KERI</span>
+          <span class="arch-tech-tag">KEL</span>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-bar"></div>
+        <div class="arch-layer-num">L2</div>
+        <div class="arch-layer-content">
+          <div class="arch-layer-title">Interoperability Bridge</div>
+          <div class="arch-layer-desc">FHIR R4 resource mapping, HL7 v2 translation, My Health Record gateway, CDR integration</div>
+        </div>
+        <div class="arch-layer-tech">
+          <span class="arch-tech-tag">FHIR R4</span>
+          <span class="arch-tech-tag">HL7</span>
+        </div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-bar"></div>
+        <div class="arch-layer-num">L1</div>
+        <div class="arch-layer-content">
+          <div class="arch-layer-title">Your Existing Systems</div>
+          <div class="arch-layer-desc">EMR, PAS, RIS, LIS, pharmacy — untouched. selfdriven connects via standard APIs and event hooks.</div>
+        </div>
+        <div class="arch-layer-tech">
+          <span class="arch-tech-tag">EMR</span>
+          <span class="arch-tech-tag">PAS</span>
+          <span class="arch-tech-tag">API</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── USE CASE TABS ── -->
+<section class="tabs-section" id="usecases">
+  <div class="section-eyebrow reveal">Operational Outcomes</div>
+  <h2 class="section-title reveal">What changes on day one</h2>
+  <p class="section-sub reveal">
+    Real outcomes for real hospital operations — from emergency admissions to discharge and follow-up.
+  </p>
+  <div class="tabs-container reveal">
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-tab="emergency">Emergency</button>
+      <button class="tab-btn" data-tab="admissions">Admissions</button>
+      <button class="tab-btn" data-tab="referrals">Referrals</button>
+      <button class="tab-btn" data-tab="discharge">Discharge</button>
+    </div>
+    <div class="tab-panel" id="tabPanel"></div>
+  </div>
+</section>
+
+<!-- ── 8 AREAS OF FOCUS ── -->
+<section id="areas">
+  <div class="section-eyebrow reveal">Implementation Framework</div>
+  <h2 class="section-title reveal">8 Areas of Focus</h2>
+  <p class="section-sub reveal">
+    We structure your implementation around 8 Areas of Focus — each with a human conductor overseeing AI-augmented execution.
+  </p>
+  <div class="aof-grid" id="aofGrid">
+    <div class="aof-card reveal" data-area="0">
+      <div class="aof-num">01</div>
+      <h3>Direction</h3>
+      <p>Board-level strategy, regulatory alignment, AHPRA & TGA compliance roadmap.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Executive steering committee charter</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Regulatory impact assessment</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>3-year digital health strategy</div>
+      </div>
+    </div>
+    <div class="aof-card reveal">
+      <div class="aof-num">02</div>
+      <h3>Engagement</h3>
+      <p>Clinical champion recruitment, patient advisory council, GP network onboarding.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Clinician adoption program</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Patient trust & comms strategy</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>PHN & GP liaison framework</div>
+      </div>
+    </div>
+    <div class="aof-card reveal">
+      <div class="aof-num">03</div>
+      <h3>Enablement</h3>
+      <p>Staff training, patient onboarding flows, developer documentation for IT teams.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Clinical workflow training modules</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Patient self-service portal</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>IT integration playbooks</div>
+      </div>
+    </div>
+    <div class="aof-card reveal">
+      <div class="aof-num">04</div>
+      <h3>Protocols</h3>
+      <p>KERI/ACDC deployment, FHIR mapping, EMR integration, passkey provisioning.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>KERI witness node deployment</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>FHIR R4 resource adapter build</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>EMR connector certification</div>
+      </div>
+    </div>
+    <div class="aof-card reveal">
+      <div class="aof-num">05</div>
+      <h3>Sustainability</h3>
+      <p>Cost modelling, government funding pathways, operational savings tracking.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Implementation cost-benefit model</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Medicare Digital Health Incentive</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Ongoing opex reduction tracking</div>
+      </div>
+    </div>
+    <div class="aof-card reveal">
+      <div class="aof-num">06</div>
+      <h3>Processes</h3>
+      <p>Clinical workflow redesign, consent lifecycle, incident response, change management.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Consent automation playbook</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Breach response SOP (zero-surface)</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Clinical workflow integration maps</div>
+      </div>
+    </div>
+    <div class="aof-card reveal">
+      <div class="aof-num">07</div>
+      <h3>Accountability</h3>
+      <p>Audit dashboards, regulator reporting, board governance packs, KPI tracking.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Real-time compliance dashboard</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Quarterly board governance report</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>OAIC audit readiness pack</div>
+      </div>
+    </div>
+    <div class="aof-card reveal">
+      <div class="aof-num">08</div>
+      <h3>Organisational</h3>
+      <p>Implementation team structure, Human Conductor assignments, AI agent orchestration.</p>
+      <div class="aof-expanded">
+        <div class="aof-detail"><span class="aof-detail-dot"></span>8 conductors × hospital departments</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>AI agent delegation framework</div>
+        <div class="aof-detail"><span class="aof-detail-dot"></span>Change management governance</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── IMPLEMENTATION TIMELINE ── -->
+<section class="timeline-section" id="timeline">
+  <div class="section-eyebrow reveal">Deployment Roadmap</div>
+  <h2 class="section-title reveal">12-week implementation</h2>
+  <p class="section-sub reveal">
+    Phased deployment that delivers value at every milestone — not a big-bang cutover.
+  </p>
+  <div class="timeline-container reveal">
+    <div class="timeline-line"></div>
+    <div class="timeline-item">
+      <div class="timeline-dot accent"></div>
+      <div class="timeline-content">
+        <div class="timeline-phase">Phase 1</div>
+        <div class="timeline-title">Discovery & Architecture</div>
+        <div class="timeline-desc">Audit existing systems, map clinical workflows, deploy KERI witness infrastructure, configure FHIR adapters for your EMR stack.</div>
+        <div class="timeline-duration">Weeks 1–3</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot accent"></div>
+      <div class="timeline-content">
+        <div class="timeline-phase">Phase 2</div>
+        <div class="timeline-title">Pilot Department</div>
+        <div class="timeline-desc">Deploy to one department (typically ED or outpatient). Staff passkey provisioning, patient AID issuance, consent automation live.</div>
+        <div class="timeline-duration">Weeks 4–6</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot green"></div>
+      <div class="timeline-content">
+        <div class="timeline-phase">Phase 3</div>
+        <div class="timeline-title">Hospital-wide Rollout</div>
+        <div class="timeline-desc">Expand to all departments. ACDC credential schemas live for pathology, pharmacy, allied health. Full audit dashboard operational.</div>
+        <div class="timeline-duration">Weeks 7–10</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot green"></div>
+      <div class="timeline-content">
+        <div class="timeline-phase">Phase 4</div>
+        <div class="timeline-title">External Network Integration</div>
+        <div class="timeline-desc">Connect to referring GPs, specialists, allied health, pharmacies. Cross-organisation credential verification live. My Health Record gateway active.</div>
+        <div class="timeline-duration">Weeks 11–12 + ongoing</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section" id="cta">
+  <div class="cta-card reveal">
+    <h2>Ready to eliminate your breach surface?</h2>
+    <p>Request a confidential executive briefing. We'll model the ROI for your hospital, walk through the architecture, and outline a 12-week implementation plan.</p>
+    <div class="cta-actions">
+      <button class="btn-primary">Request Executive Briefing</button>
+      <button class="btn-outline">Download Hospital Whitepaper</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-brand">selfdriven<span class="dot">.health</span></div>
+  <div class="footer-links">
+    <a href="https://selfdriven.foundation">Foundation</a>
+    <a href="https://selfdriven.community">Community</a>
+    <a href="https://selfdriven.ai">AI</a>
+    <a href="https://selfdriven.network">Network</a>
+    <a href="https://selfdriven.money">Money</a>
+    <a href="https://selfdriven.pro">Pro</a>
+  </div>
+  <div class="footer-legal">
+    &copy; 2026 selfdriven Foundation. Sovereign health identity infrastructure for Australian hospitals.
+  </div>
+</footer>
+
+<script>
+// ── NAV ──
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 40));
+const toggle = document.getElementById('navToggle');
+const links = document.getElementById('navLinks');
+toggle.addEventListener('click', () => { toggle.classList.toggle('open'); links.classList.toggle('open'); });
+links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { toggle.classList.remove('open'); links.classList.remove('open'); }));
+
+// ── SCROLL REVEAL ──
+const reveals = document.querySelectorAll('.reveal');
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      entry.target.style.transitionDelay = `${i * 0.08}s`;
+      entry.target.classList.add('visible');
+      revealObs.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+reveals.forEach(el => revealObs.observe(el));
+
+// ── STAT COUNTERS ──
+document.querySelectorAll('.stat-num').forEach(el => {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const target = parseInt(el.dataset.count);
+        const suffix = el.dataset.suffix || '';
+        const duration = 1200;
+        const start = performance.now();
+        const tick = (now) => {
+          const p = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.round(target * eased).toLocaleString() + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        obs.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  obs.observe(el);
+});
+
+// ── DASHBOARD BAR ANIMATION ──
+const dashObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      document.querySelectorAll('.dp-bar-fill').forEach(bar => {
+        setTimeout(() => { bar.style.width = bar.dataset.target + '%'; }, 400);
+      });
+      dashObs.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+const dashEl = document.getElementById('dashPreview');
+if (dashEl) dashObs.observe(dashEl);
+
+// ── ROI CALCULATOR ──
+const bedsSlider = document.getElementById('bedsSlider');
+const admissionsSlider = document.getElementById('admissionsSlider');
+const securitySlider = document.getElementById('securitySlider');
+const staffSlider = document.getElementById('staffSlider');
+
+function formatCurrency(n) {
+  if (n >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return '$' + (n / 1000).toFixed(0) + 'K';
+  return '$' + n.toLocaleString();
+}
+
+function updateROI() {
+  const beds = parseInt(bedsSlider.value);
+  const admissions = parseInt(admissionsSlider.value);
+  const security = parseInt(securitySlider.value);
+  const staff = parseInt(staffSlider.value);
+
+  document.getElementById('bedsValue').textContent = beds.toLocaleString();
+  document.getElementById('admissionsValue').textContent = admissions.toLocaleString();
+  document.getElementById('securityValue').textContent = formatCurrency(security);
+  document.getElementById('staffValue').textContent = staff;
+
+  const consentSavings = staff * 0.67 * 95000; // 67% reduction × avg salary
+  const breachRiskReduction = security * 0.40; // 40% security spend redirected
+  const interopSavings = admissions * 18; // $18 per admission in duplicate test/transfer savings
+  const complianceSavings = beds * 420; // $420 per bed in audit prep reduction
+  const totalAnnual = consentSavings + breachRiskReduction + interopSavings + complianceSavings;
+  const implCost = beds * 1800; // implementation cost estimate
+  const paybackMonths = Math.max(1, Math.round((implCost / totalAnnual) * 12));
+
+  document.getElementById('roiResults').innerHTML = `
+    <div class="roi-result-item">
+      <div class="roi-result-label">Consent Admin Savings</div>
+      <div class="roi-result-value green">${formatCurrency(consentSavings)}</div>
+      <div class="roi-result-detail">${(staff * 0.67).toFixed(1)} FTE equivalent automated</div>
+    </div>
+    <div class="roi-result-item">
+      <div class="roi-result-label">Breach Risk Reduction</div>
+      <div class="roi-result-value accent">${formatCurrency(breachRiskReduction)}</div>
+      <div class="roi-result-detail">40% security spend → proactive posture</div>
+    </div>
+    <div class="roi-result-item">
+      <div class="roi-result-label">Interoperability Savings</div>
+      <div class="roi-result-value green">${formatCurrency(interopSavings)}</div>
+      <div class="roi-result-detail">$18/admission in reduced duplicates</div>
+    </div>
+    <div class="roi-result-item">
+      <div class="roi-result-label">Compliance Efficiency</div>
+      <div class="roi-result-value accent">${formatCurrency(complianceSavings)}</div>
+      <div class="roi-result-detail">$420/bed in audit prep reduction</div>
+    </div>
+    <div class="roi-total-card">
+      <div class="roi-total-label">Total Annual Savings</div>
+      <div class="roi-total-value">${formatCurrency(totalAnnual)}/yr</div>
+      <div style="font-size:12px; color: var(--health-green); margin-top:8px; font-family:'JetBrains Mono',monospace;">
+        Payback: ~${paybackMonths} months &middot; Impl: ${formatCurrency(implCost)}
+      </div>
+    </div>
+  `;
+}
+[bedsSlider, admissionsSlider, securitySlider, staffSlider].forEach(s => s.addEventListener('input', updateROI));
+updateROI();
+
+// ── AOF EXPAND ──
+document.querySelectorAll('.aof-card').forEach(card => {
+  card.addEventListener('click', () => card.classList.toggle('active'));
+});
+
+// ── USE CASE TABS ──
+const tabData = {
+  emergency: {
+    title: 'Emergency Department',
+    desc: 'When a patient arrives at ED, their Health AID is verified in under a second. Critical information — allergies, medications, conditions — is immediately available via pre-authorised emergency access credentials.',
+    content: `
+      <div class="outcome-grid">
+        <div class="outcome-card">
+          <h4>Instant Identity Verification</h4>
+          <p>Patient taps their phone or presents a passkey. AID verified against KERI witness network in 300ms. No insurance cards. No repeated forms.</p>
+          <div class="outcome-metric green">Verification: 0.3s vs 12min</div>
+        </div>
+        <div class="outcome-card">
+          <h4>Emergency Credential Access</h4>
+          <p>Pre-authorised ACDC credentials expose allergies, current medications, and critical conditions — without requiring patient consciousness or consent in the moment.</p>
+          <div class="outcome-metric accent">scope=emergency, trigger=sos</div>
+        </div>
+        <div class="outcome-card">
+          <h4>Automatic Consent Logging</h4>
+          <p>Every data access in ED is logged as a KERI interaction event. Full audit trail — no paper chase, no retrospective consent forms.</p>
+          <div class="outcome-metric green">100% audit coverage</div>
+        </div>
+        <div class="outcome-card">
+          <h4>Cross-Hospital Records</h4>
+          <p>If the patient was treated at another selfdriven-enabled hospital, their full health timeline is available via verified ACDC credential chain.</p>
+          <div class="outcome-metric accent">FHIR R4 interop</div>
+        </div>
+      </div>`
+  },
+  admissions: {
+    title: 'Inpatient Admissions',
+    desc: 'Admissions workflow drops from 45 minutes of paperwork to 3 minutes of biometric verification. Consent is digital, granular, and revocable.',
+    content: `
+      <div class="outcome-grid">
+        <div class="outcome-card">
+          <h4>Digital Consent at Bedside</h4>
+          <p>Patient signs consent via passkey on a bedside tablet. Consent scope is granular — specific to procedure, department, and time window.</p>
+          <div class="outcome-metric green">93% reduction in consent admin</div>
+        </div>
+        <div class="outcome-card">
+          <h4>Insurance Pre-Verification</h4>
+          <p>Patient's insurance credential (ACDC-issued by insurer) is verified cryptographically — no phone calls, no fax, no delays to billing.</p>
+          <div class="outcome-metric accent">Verification: instant</div>
+        </div>
+        <div class="outcome-card">
+          <h4>Practitioner Credential Check</h4>
+          <p>Every clinician who accesses the patient record has a KERI AID with role-scoped ACDC credentials. Access is logged, attributed, and auditable.</p>
+          <div class="outcome-metric green">AHPRA-linked credentials</div>
+        </div>
+        <div class="outcome-card">
+          <h4>Reduced Duplicate Testing</h4>
+          <p>Previous pathology and imaging results are available via the patient's credential chain. No need to re-order tests that were done last week at another facility.</p>
+          <div class="outcome-metric accent">$18/admission saved</div>
+        </div>
+      </div>`
+  },
+  referrals: {
+    title: 'Specialist Referrals',
+    desc: 'Referrals go from fax-and-wait to cryptographically verified, patient-consented, instant credential transfer.',
+    content: `
+      <div class="outcome-grid">
+        <div class="outcome-card">
+          <h4>Patient-Consented Transfer</h4>
+          <p>Patient grants a time-limited ACDC credential to the specialist — scoped to relevant records only. The specialist verifies via KERI, no intermediary required.</p>
+          <div class="outcome-metric green">ttl=30d, scope=cardiology</div>
+        </div>
+        <div class="outcome-card">
+          <h4>Referral Audit Trail</h4>
+          <p>Every referral is an interaction event in the patient's KEL. The referring clinician, receiving specialist, scope, and timestamp are all immutably recorded.</p>
+          <div class="outcome-metric accent">ixn event anchored</div>
+        </div>
+        <div class="outcome-card">
+          <h4>GP Loop Closure</h4>
+          <p>When the specialist issues a report, it's an ACDC credential that automatically notifies the referring GP — closing the loop without manual follow-up.</p>
+          <div class="outcome-metric green">Auto-notify on credential issue</div>
+        </div>
+        <div class="outcome-card">
+          <h4>Waiting List Integrity</h4>
+          <p>Patient identity on waiting lists is KERI-verified — no duplicate entries, no identity confusion, no gaming. Clean data, accurate wait times.</p>
+          <div class="outcome-metric accent">AID-verified queue</div>
+        </div>
+      </div>`
+  },
+  discharge: {
+    title: 'Discharge & Follow-up',
+    desc: 'Discharge summaries become verifiable credentials. Medication lists are cryptographically signed. Follow-up consent is pre-configured.',
+    content: `
+      <div class="outcome-grid">
+        <div class="outcome-card">
+          <h4>Signed Discharge Credential</h4>
+          <p>Discharge summary is issued as an ACDC credential — signed by the discharging clinician's KERI AID. Patient, GP, and pharmacist all receive verified copies.</p>
+          <div class="outcome-metric green">Cryptographically signed</div>
+        </div>
+        <div class="outcome-card">
+          <h4>Medication Reconciliation</h4>
+          <p>Updated medication list is a new ACDC credential replacing the pre-admission version. Pharmacy systems can verify the latest list is authoritative.</p>
+          <div class="outcome-metric accent">SAID-chained update</div>
+        </div>
+        <div class="outcome-card">
+          <h4>Follow-up Consent Pre-set</h4>
+          <p>At discharge, patient configures follow-up consent — which providers can access what data for how long. No ambiguity, no phone tag, no lost-to-follow-up.</p>
+          <div class="outcome-metric green">Pre-configured consent</div>
+        </div>
+        <div class="outcome-card">
+          <h4>Readmission Intelligence</h4>
+          <p>If the patient is readmitted, the full credential chain — including discharge, medications, follow-up — is instantly available. Continuity without repetition.</p>
+          <div class="outcome-metric accent">Full credential chain</div>
+        </div>
+      </div>`
+  }
+};
+
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabPanel = document.getElementById('tabPanel');
+
+function renderTab(key) {
+  const d = tabData[key];
+  tabPanel.innerHTML = `
+    <div class="tab-panel-title">${d.title}</div>
+    <div class="tab-panel-desc">${d.desc}</div>
+    ${d.content}
+  `;
+}
+renderTab('emergency');
+
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    tabPanel.style.opacity = '0';
+    setTimeout(() => {
+      renderTab(btn.dataset.tab);
+      tabPanel.style.opacity = '1';
+    }, 150);
+  });
+});
+tabPanel.style.transition = 'opacity 0.15s ease';
+</script>
+</body>
+</html>
