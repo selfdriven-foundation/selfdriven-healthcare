@@ -1,8 +1,0 @@
-title: "selfdriven Healthcare"
-description: "Health systems for a better human experience in the era of Generally Available High Intelligence (GAHI)."
-baseurl: ""
-url: "https://selfdriven.healthcare"
-markdown: kramdown
-kramdown:
-  input: GFM
-  hard_wrap: false
