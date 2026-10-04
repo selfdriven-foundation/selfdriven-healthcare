@@ -1,6 +1,7 @@
 ---
 layout: selfdriven
-title: Opportunity Overview - selfdriven Health
+title: Opportunity Overview
+section: Opportunity
 permalink: /opportunity/overview
 ---
 

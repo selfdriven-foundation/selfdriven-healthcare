@@ -1,6 +1,7 @@
 ---
 layout: selfdriven
-title: Energy Resources - selfdriven Health
+title: Informational & Mechanical Energy
+section: Resources
 permalink: /resources/energy
 ---
 

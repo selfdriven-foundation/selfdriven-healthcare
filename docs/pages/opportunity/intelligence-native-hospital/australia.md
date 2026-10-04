@@ -1,6 +1,7 @@
 ---
 layout: selfdriven
-title: Intelligence-Native Hospital Australia Opportunity - selfdriven Health
+title: Intelligence-Native Hospital Australia
+section: Opportunity
 permalink: /opportunity/intelligence-native-hospital/australia
 ---
 

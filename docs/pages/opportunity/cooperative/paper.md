@@ -1,6 +1,7 @@
 ---
 layout: selfdriven
-title: Cooperative Whitepaper - selfdriven Health
+title: Cooperative Opportunity Paper
+section: Opportunity
 permalink: /opportunity/cooperative/paper
 ---
 
@@ -8,7 +9,7 @@ permalink: /opportunity/cooperative/paper
 
 **! FOLLOWING IS THOUGHT STARTER FIRST CUT**
 
-!! It is being progessively being updated based on scope and conversations.
+!! It is being progressively being updated based on scope and conversations.
 
 ---
 

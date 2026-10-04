@@ -1,6 +1,7 @@
 ---
 layout: selfdriven
-title: Opportunity for an Cooperative - selfdriven Health
+title: Opportunity for a Cooperative
+section: Opportunity
 permalink: /opportunity/cooperative
 ---
 
@@ -29,7 +30,7 @@ permalink: /opportunity/cooperative
     - $40,000 to facilitate the organisation (Liz)
     - $20,000 expenses
     - $40,000 grants for associates - initially
-    - $80,000 fund engagement, design & deveopment
+    - $80,000 fund engagement, design & development
 	- $20,000 to beHub app/data (inc entityOS.cloud service) access for founding hospitals
 
 - Then annual membership:
@@ -54,11 +55,11 @@ permalink: /opportunity/cooperative
 
 ---
 
-- [Opportunity Paper](/opportunity/cooperative/paper) - Progessively being updated based on scope and conversations.
+- [Opportunity Paper](/opportunity/cooperative/paper) - Progressively being updated based on scope and conversations.
 
 ## References
 - [selfdriven.ai](https://selfdriven.ai)
 - [selfdriven.institute](https://selfdriven.institute)
 - [selfdriven.foundation](https://selfdriven.foundation)
-- [selfdriven.network](htts://selfdriven.network) - underlying interfaces to enable value of tech
+- [selfdriven.network](https://selfdriven.network) - underlying interfaces to enable value of tech
 - [selfdriven.university](https://selfdriven.university)

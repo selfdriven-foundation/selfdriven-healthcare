@@ -1,6 +1,7 @@
 ---
 layout: selfdriven
-title: Intelligence-Native Hospital Opportunity - selfdriven Health
+title: Intelligence-Native Hospital
+section: Opportunity
 permalink: /opportunity/intelligence-native-hospital
 ---
 
@@ -320,13 +321,12 @@ This is essential for safety/regulatory acceptance as AI adoption expands.
 
 
 - [Capability Maturity Ladder + Regulatory/Governance Model - Australia](/opportunity/intelligence-native-hospital/australia)
--
 
 ## References
 - [selfdriven.ai](https://selfdriven.ai)
 - [selfdriven.institute](https://selfdriven.institute)
 - [selfdriven.foundation](https://selfdriven.foundation)
-- [selfdriven.network](htts://selfdriven.network) - underlying interfaces to enable value of tech
+- [selfdriven.network](https://selfdriven.network) - underlying interfaces to enable value of tech
 - [selfdriven.university](https://selfdriven.university)
 
 

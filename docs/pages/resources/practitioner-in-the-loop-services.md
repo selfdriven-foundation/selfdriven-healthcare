@@ -1,6 +1,7 @@
 ---
 layout: selfdriven
-title: HITPS - selfdriven Health
+title: Practitioner-In-The-Loop Services
+section: Resources
 permalink: /resources/practitioner-in-the-loop-services
 ---
 
@@ -17,7 +18,7 @@ permalink: /resources/practitioner-in-the-loop-services
     - Parent starts the plan with the child
     - Child won't engage with the plan/process
     - Parent goes back to  *GenAI*
-    -  *GenAI* identifies practitioners who can be be incorported in the health loop.
+    -  *GenAI* identifies practitioners who can be incorporated in the health loop.
 
 ## Services In Practice
 
